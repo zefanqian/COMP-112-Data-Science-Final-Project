@@ -6,20 +6,30 @@ data_cleaned<- data %>%
   filter(category_id %in% c("1", "2", "10", "15", "17", "19", "22", "23", "24", "26", "27", "28")) %>%
   mutate(time_string = toString(publish_time)) %>%
   mutate(day = substr(time_string, 9, 10)) %>%
+  mutate(likes = as.numeric(likes)) %>%
+  mutate(dislikes = as.numeric(dislikes))
   mutate(like_dislike_ratio = likes/(dislikes+1))%>%
   select(title, category_id, tags, views, likes, comment_count, dislikes,like_dislike_ratio)
+
 
 ui <- fluidPage(
   title = "Youtube Recommendation",
   sidebarLayout(
     sidebarPanel(
       conditionalPanel(
+        'input.dataset === "Users Manual"',
+        helpText("Here is the user's manual")
+      ),
+      conditionalPanel(
         'input.dataset === "Likes"',
-        checkboxGroupInput("show_vars","Columns in Likes to show:", names(data_cleaned), selected = names(data_cleaned)),
         selectInput("category1",
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+        checkboxGroupInput("show_vars","Columns in Likes to show:", 
+                           list("Title" = "title", "Views" = "views", "Likes" = "likes", 
+                                "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
+                           selected = list("title", "likes")),
       ),
       conditionalPanel(
         'input.dataset === "Dislikes"',
@@ -48,16 +58,21 @@ ui <- fluidPage(
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+      ),
+      conditionalPanel(
+        'input.dataset === "Visualization"'
       )
     ),
     mainPanel(
       tabsetPanel(
         id = 'dataset',
+        tabPanel("Users Manual"),
         tabPanel("Likes", DT::dataTableOutput("mytable_likes")),
         tabPanel("Dislikes", DT::dataTableOutput("mytable_dislikes")),
         tabPanel("Comment Count", DT::dataTableOutput("mytable_comment_count")),
         tabPanel("Views", DT::dataTableOutput("mytable_views")),
-        tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio"))
+        tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio")),
+        tabPanel("Visualization")
       )
     )
   )
@@ -109,6 +124,4 @@ server <- function(input, output) {
   }
 
 shinyApp(ui = ui, server = server)
-
-
 
