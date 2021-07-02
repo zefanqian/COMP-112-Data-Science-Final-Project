@@ -26,10 +26,10 @@ ui <- fluidPage(
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
-        checkboxGroupInput("show_vars","Columns in Likes to show:", 
+        checkboxGroupInput("show_vars1","Columns in Likes to show:", 
                            list("Title" = "title", "Views" = "views", "Likes" = "likes", 
                                 "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
-                           selected = list("title", "likes")),
+                           selected = list("title", "likes"))
       ),
       conditionalPanel(
         'input.dataset === "Dislikes"',
@@ -37,6 +37,10 @@ ui <- fluidPage(
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+        checkboxGroupInput("show_vars2","Columns in Likes to show:", 
+                          list("Title" = "title", "Views" = "views", "Likes" = "likes", 
+                               "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
+                          selected = list("title", "dislikes"))
       ),
       conditionalPanel(
         'input.dataset === "Comment Count"',
@@ -44,6 +48,10 @@ ui <- fluidPage(
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+        checkboxGroupInput("show_vars3","Columns in Likes to show:", 
+                           list("Title" = "title", "Views" = "views", "Likes" = "likes", 
+                                "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
+                           selected = list("title", "comment_count"))
       ),
       conditionalPanel(
         'input.dataset === "Views"',
@@ -51,13 +59,21 @@ ui <- fluidPage(
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+        checkboxGroupInput("show_vars4","Columns in Likes to show:", 
+                           list("Title" = "title", "Views" = "views", "Likes" = "likes", 
+                                "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
+                           selected = list("title", "views"))
       ),
       conditionalPanel(
-        'input.dataset === "like_dislike_ratio"',
+        'input.dataset === "Like Dislike Ratio"',
         selectInput("category5",
                     "Category",
                     choices = list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
                                    "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+        checkboxGroupInput("show_vars5","Columns in Likes to show:", 
+                           list("Title" = "title", "Views" = "views", "Likes" = "likes", 
+                                "Comment Count" = "comment_count", "Dislikes" = "dislikes", "Like Dislike Ratio" = "like_dislike_ratio"), 
+                           selected = list("title", "like_dislike_ratio"))
       ),
       conditionalPanel(
         'input.dataset === "Visualization"'
@@ -66,7 +82,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         id = 'dataset',
-        tabPanel("Users Manual"),
+        tabPanel("Users Manual", tags$h2("User's Manual"), htmlOutput("manual")),
         tabPanel("Likes", DT::dataTableOutput("mytable_likes")),
         tabPanel("Dislikes", DT::dataTableOutput("mytable_dislikes")),
         tabPanel("Comment Count", DT::dataTableOutput("mytable_comment_count")),
@@ -86,7 +102,7 @@ server <- function(input, output) {
         mutate(likes = as.numeric(likes)) %>%
         filter(category_id == input$category1) %>%
         arrange(desc(likes)) %>%
-        select(input$show_vars)
+        select(input$show_vars1)
     })
     
     output$mytable_dislikes <- DT::renderDataTable({
@@ -94,7 +110,7 @@ server <- function(input, output) {
         mutate(dislikes = as.numeric(dislikes)) %>%
         filter(category_id == input$category2) %>%
         arrange(dislikes) %>%
-        select(title, dislikes)
+        select(input$show_vars2)
     })
     
     output$mytable_comment_count <- DT::renderDataTable({
@@ -102,7 +118,7 @@ server <- function(input, output) {
         mutate(comment_count = as.numeric(comment_count)) %>%
         filter(category_id == input$category3) %>%
         arrange(desc(comment_count)) %>%
-        select(title, comment_count)
+        select(input$show_vars3)
     })
     
     output$mytable_views <- DT::renderDataTable({
@@ -110,7 +126,7 @@ server <- function(input, output) {
         mutate(views = as.numeric(views)) %>%
         filter(category_id == input$category4) %>%
         arrange(desc(views)) %>%
-        select(title, views)
+        select(input$show_vars4)
     })
     
     output$mytable_like_dislike_ratio <- DT::renderDataTable({
@@ -118,10 +134,14 @@ server <- function(input, output) {
         mutate(like_dislike_ratio = as.numeric(like_dislike_ratio))%>%
         filter(category_id == input$category5)%>%
         arrange(desc(like_dislike_ratio)) %>%
-        select(title,like_dislike_ratio)
+        select(input$show_vars5)
     })
     
-  }
+    output$manual <- renderText({
+      paste("<b> Manual Here", "</b>")
+    })
+    
+}
 
 shinyApp(ui = ui, server = server)
 
