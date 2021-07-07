@@ -186,7 +186,8 @@ server <- function(input, output) {
                    fill = category_id_c))+
         geom_bar(stat = 'identity')+
         labs(y = "Category of Music",
-             title = paste("Ranking of Category by",input$Vars)
+             title = paste("Ranking of Category by",input$Vars),
+             x = ""
              )
     )
 
