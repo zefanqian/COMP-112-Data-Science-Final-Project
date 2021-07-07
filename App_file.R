@@ -86,7 +86,7 @@ ui <- fluidPage(
                            selected = list("title", "like_dislike_ratio"))
       ),
       conditionalPanel(
-        'input.dataset === "Visualization1"',
+        'input.dataset === "Ranking Plot"',
         selectInput("Vars",
                     "Ranking Categories of Video according to:",
                     choices = list("Views Per Video" = "views", "Likes Per Video" = "likes",
@@ -94,7 +94,7 @@ ui <- fluidPage(
       ),
       
       conditionalPanel(
-        'input.dataset === "Visulization2'
+        'input.dataset === "Distribution of Likes by Categories'
       )
     )
     
@@ -110,14 +110,16 @@ ui <- fluidPage(
         tabPanel("Views", DT::dataTableOutput("mytable_views")),
         tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio"))
         ,
-         tabPanel("Visualization1",
+         tabPanel("Ranking Plot",
                   plotOutput(outputId = "Rankplot"),
                   
  ),
- tabPanel("Visualization2",
+ tabPanel("Distribution of Likes by Categories",
           checkboxGroupInput("Categoreis","Categories to be included in the Visulization", 
                              list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
-                                  "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28")),
+                                  "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
+                             selected = ("1")
+                             ),
           plotOutput(outputId = "Boxplot")
 )
 
@@ -194,7 +196,7 @@ server <- function(input, output) {
 
     output$Boxplot <- renderPlot(
       data %>%
-        filter(category_id == c(22,24,23,22,1,26,17,28,20,27)) %>%
+        filter(category_id == input$Categoreis) %>%
         mutate(category_id_c = as.character(category_id)) %>%
         group_by(category_id_c) %>%
         summarize(category_id_c, likes) %>%
