@@ -126,6 +126,7 @@ ui <- fluidPage(
 )
 
 
+
 server <- function(input, output) {
     
     output$mytable_likes <- DT::renderDataTable({
@@ -201,7 +202,8 @@ server <- function(input, output) {
         labs(y = "Category of Music",
              title = paste("Ranking of Category by",input$Vars),
              x = ""
-             )
+             )+
+        theme(legend.position = "none")
     )
 
     output$Boxplot <- renderPlot(
