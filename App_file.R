@@ -6,24 +6,27 @@ data_cleaned<- data %>%
   filter(category_id %in% c("1", "2", "10", "15", "17", "19", "22", "23", "24", "26", "27", "28")) %>%
   mutate(time_string = toString(publish_time)) %>%
   mutate(day = substr(time_string, 9, 10)) %>%
-  mutate(likes = as.numeric(likes)) %>%
-  mutate(dislikes = as.numeric(dislikes))%>%
-  mutate(like_dislike_ratio = likes/(dislikes+1))%>%
-  select(title, category_id, tags, views, likes, comment_count, dislikes,like_dislike_ratio)
+  mutate(likes = as.numeric(likes, na.rm = TRUE)) %>%
+  mutate(dislikes = as.numeric(dislikes, na.rm = TRUE))%>%
+  mutate(like_dislike_ratio = likes / (dislikes + 1))%>%
+  select(title, category_id, tags, views, likes, comment_count, dislikes, like_dislike_ratio)
 
 
-graphdata<-
-  data_cleaned%>%
+graphdata <- data_cleaned %>%
   mutate(category_id_c = as.character(category_id)) %>% 
   group_by(category_id_c) %>% 
-  summarise(totallikes = sum(likes),totaldislikes = sum(dislikes), 
-            totalviews = sum(views), totalcomment = sum(comment_count),
+  mutate(views = as.numeric(views, na.rm = TRUE)) %>%
+  mutate(comment_count = as.numeric(comment_count, na.rm = TRUE)) %>%
+  summarise(totallikes = sum(likes, na.rm = TRUE), totaldislikes = sum(dislikes, na.rm = TRUE), 
+            totalviews = sum(views, na.rm = TRUE), totalcomment = sum(comment_count, na.rm = TRUE),
             totalvideos = n(), likes_per_video = totallikes/totalvideos, 
             dislikes_per_video = totaldislikes/ totalvideos, views_per_video = totalviews/totalvideos,
-            comment_count_per_video = totalcomment/totalvideos, like_dislike_ratio_per_video = mean(like_dislike_ratio) )
+            comment_count_per_video = totalcomment/totalvideos, like_dislike_ratio_per_video = mean(like_dislike_ratio, na.rm = TRUE))
 
 ui <- fluidPage(
+  
   title = "Youtube Recommendation",
+  
   sidebarLayout(
     sidebarPanel(
       conditionalPanel(
@@ -96,10 +99,8 @@ ui <- fluidPage(
       conditionalPanel(
         'input.dataset === "Distribution of Likes by Categories'
       )
-    )
+    ),
     
-    
-    ,
     mainPanel(
       tabsetPanel(
         id = 'dataset',
@@ -108,22 +109,17 @@ ui <- fluidPage(
         tabPanel("Dislikes", DT::dataTableOutput("mytable_dislikes")),
         tabPanel("Comment Count", DT::dataTableOutput("mytable_comment_count")),
         tabPanel("Views", DT::dataTableOutput("mytable_views")),
-        tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio"))
-        ,
-         tabPanel("Ranking Plot",
-                  plotOutput(outputId = "Rankplot"),
-                  
- ),
- tabPanel("Distribution of Likes by Categories",
-          checkboxGroupInput("Categoreis","Categories to be included in the Visulization", 
-                             list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
-                                  "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
-                             selected = ("1")
-                             ),
-          plotOutput(outputId = "Boxplot")
-)
-
-
+        tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio")),
+        tabPanel("Ranking Plot", plotOutput(outputId = "Rankplot"))
+      
+        #,tabPanel("Distribution of Likes by Categories",
+        #checkboxGroupInput("Categoreis","Categories to be included in the Visulization", 
+                           #list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
+                           #     "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
+                           #selected = ("1")
+                           #),
+        #plotOutput(outputId = "Boxplot"))
+        
       )
     )
   )
@@ -173,26 +169,24 @@ server <- function(input, output) {
     })
     
     output$manual <- renderText({
-      paste("<b> <p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you’d like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
+      paste("<p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
             
             <p> Then, we will be able to rank the videos by Likes, Dislikes, Comment Count, Views, and Like-Dislike Ratio. By selecting one, the app will bring you to a page where you can search by keywords and sort by likes and alphabetical order of the title. You may also choose to see how many entries you view per page. To go to the next page, click on the numbers or next.</p>")
     })
     
     output$Rankplot <- renderPlot(
-      graphdata%>%
+      graphdata %>%
         ggplot(aes(y = fct_reorder(category_id_c,
-                                   eval(as.name(paste(input$Vars,"_per_video",sep="")
-))),
-                   x = eval(as.name(paste(input$Vars,"_per_video",sep="")
-)), 
-                   fill = category_id_c))+
-        geom_bar(stat = 'identity')+
+                                   eval(as.name(paste(input$Vars,"_per_video", sep="")))
+                                   ),
+                   x = eval(as.name(paste(input$Vars, "_per_video", sep=""))), 
+                   fill = category_id_c)) +
+        geom_bar(stat = 'identity') +
         labs(y = "Category of Music",
              title = paste("Ranking of Category by",input$Vars),
              x = ""
              )
     )
-
 
     output$Boxplot <- renderPlot(
       data %>%
@@ -200,7 +194,7 @@ server <- function(input, output) {
         mutate(category_id_c = as.character(category_id)) %>%
         group_by(category_id_c) %>%
         summarize(category_id_c, likes) %>%
-        ggplot(aes(y = category_id_c, x=likes))+
+        ggplot(aes(y = category_id_c, x=likes)) +
         geom_boxplot()
     )
     
