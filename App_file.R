@@ -112,13 +112,13 @@ ui <- fluidPage(
         tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio")),
         tabPanel("Ranking Plot", plotOutput(outputId = "Rankplot"))
       
-        #,tabPanel("Distribution of Likes by Categories",
-        #checkboxGroupInput("Categoreis","Categories to be included in the Visulization", 
-                           #list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19", 
-                           #     "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
-                           #selected = ("1")
-                           #),
-        #plotOutput(outputId = "Boxplot"))
+        ,tabPanel("Distribution of Likes by Categories",
+        checkboxGroupInput("Categoreis","Categories to be included in the Visulization",
+        list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19",
+            "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
+        selected = ("1")
+        ),
+        plotOutput(outputId = "Boxplot"))
         
       )
     )
