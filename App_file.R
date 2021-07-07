@@ -169,9 +169,25 @@ server <- function(input, output) {
     })
     
     output$manual <- renderText({
-      paste("<p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
+      paste(
+        "<b> <p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you’d like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
             
-            <p> Then, we will be able to rank the videos by Likes, Dislikes, Comment Count, Views, and Like-Dislike Ratio. By selecting one, the app will bring you to a page where you can search by keywords and sort by likes and alphabetical order of the title. You may also choose to see how many entries you view per page. To go to the next page, click on the numbers or next.</p>")
+            <p> Then, we will be able to rank the videos by Likes, Dislikes, Comment Count, Views, and Like-Dislike Ratio. By selecting one, the app will bring you to a page where you can search by keywords and sort by likes and alphabetical order of the title. You may also choose to see how many entries you view per page. To go to the next page, click on the numbers or next.</p>
+<p> The following numbers correspond to their relative categories. <p/>
+<p> 1 = Autos & Vehicles <p/>
+<p> 2 = Music <p/>
+<p> 10 = Comedy <p/>
+<p> 15 = Science & Technology <p/>
+<p> 17 = Movies <p/>
+<p> 19 = Action/Adventure <p/>
+<p> 22 = Documentary <p/>
+<p> 23 = Drama <p/>
+<p> 24 = Family <p/>
+<p> 26 = Horror <p/>
+<p> 27 = Sci-Fi/Fantasy <p/>
+<p> 28 = Thriller <p/>
+"
+      )
     })
     
     output$Rankplot <- renderPlot(
