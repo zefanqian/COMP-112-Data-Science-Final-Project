@@ -23,6 +23,13 @@ graphdata <- data_cleaned %>%
             dislikes_per_video = totaldislikes/ totalvideos, views_per_video = totalviews/totalvideos,
             comment_count_per_video = totalcomment/totalvideos, like_dislike_ratio_per_video = mean(like_dislike_ratio, na.rm = TRUE))
 
+data_cleaned <- data_cleaned %>%
+  mutate(category = ifelse(category_id == "1", "Autos & Vehicles", ifelse(category_id == "2", "Music", ifelse(category_id == "10", "Comedy", 
+                    ifelse(category_id == "15", "Science & Technology", ifelse(category_id == "17", "Science & Technology", 
+                    ifelse(category_id == "17", "Movies", ifelse(category_id == "19", "Action/Adventure", ifelse(category_id == "22", "Documentary",
+                    ifelse(category_id == "23", "Drama", ifelse(category_id == "24", "Family", ifelse(category_id == "26", "Horror", 
+                    ifelse(category_id == "27", "Sci-Fi/Fantasy", "Thriller")))))))))))))
+
 ui <- fluidPage(
   
   title = "Youtube Recommendation",
@@ -97,7 +104,12 @@ ui <- fluidPage(
       ),
       
       conditionalPanel(
-        'input.dataset === "Distribution of Likes by Categories'
+        'input.dataset === "Distribution of Likes by Categories"',
+        checkboxGroupInput("Categoreis","Categories to be included in the Visulization",
+                           list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19",
+                                "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
+                           selected = ("1")
+        )
       )
     ),
     
@@ -110,15 +122,8 @@ ui <- fluidPage(
         tabPanel("Comment Count", DT::dataTableOutput("mytable_comment_count")),
         tabPanel("Views", DT::dataTableOutput("mytable_views")),
         tabPanel("Like Dislike Ratio", DT::dataTableOutput("mytable_like_dislike_ratio")),
-        tabPanel("Ranking Plot", plotOutput(outputId = "Rankplot"))
-      
-        ,tabPanel("Distribution of Likes by Categories",
-        checkboxGroupInput("Categoreis","Categories to be included in the Visulization",
-        list("Autos & Vehicles" = "1", "Music" = "2", "Comedy" = "10", "Science & Technology" = "15", "Movies" = "17", "Action/Adventure" = "19",
-            "Documentary" = "22", "Drama" = "23", "Family" = "24", "Horror" = "26", "Sci-Fi/Fantasy" = "27", "Thriller" = "28"),
-        selected = ("1")
-        ),
-        plotOutput(outputId = "Boxplot"))
+        tabPanel("Ranking Plot", plotOutput(outputId = "Rankplot")),
+        tabPanel("Distribution of Likes by Categories", plotOutput(outputId = "Boxplot"))
         
       )
     )
@@ -171,23 +176,22 @@ server <- function(input, output) {
     
     output$manual <- renderText({
       paste(
-        "<b> <p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you’d like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
-            
-            <p> Then, we will be able to rank the videos by Likes, Dislikes, Comment Count, Views, and Like-Dislike Ratio. By selecting one, the app will bring you to a page where you can search by keywords and sort by likes and alphabetical order of the title. You may also choose to see how many entries you view per page. To go to the next page, click on the numbers or next.</p>
-<p> The following numbers correspond to their relative categories. <p/>
-<p> 1 = Autos & Vehicles <p/>
-<p> 2 = Music <p/>
-<p> 10 = Comedy <p/>
-<p> 15 = Science & Technology <p/>
-<p> 17 = Movies <p/>
-<p> 19 = Action/Adventure <p/>
-<p> 22 = Documentary <p/>
-<p> 23 = Drama <p/>
-<p> 24 = Family <p/>
-<p> 26 = Horror <p/>
-<p> 27 = Sci-Fi/Fantasy <p/>
-<p> 28 = Thriller <p/>
-"
+        "<p>Welcome to our shiny app! This is a fairly self-explanatory app. First off, start off my selecting the categories in which you would like to browse the data in. To select a category, clock on the drop-down box and scroll up or down until you see what you want to explore. Simply click on the option you’d like. We then select what results we would like to view. Check or uncheck what columns we would like to show in the results.</p>
+         <p> Then, we will be able to rank the videos by Likes, Dislikes, Comment Count, Views, and Like-Dislike Ratio. By selecting one, the app will bring you to a page where you can search by keywords and sort by likes and alphabetical order of the title. You may also choose to see how many entries you view per page. To go to the next page, click on the numbers or next.</p>
+         <p> The following numbers correspond to their relative categories. <p/>
+         <p> 1 = Autos & Vehicles <p/>
+         <p> 2 = Music <p/>
+         <p> 10 = Comedy <p/>
+         <p> 15 = Science & Technology <p/>
+         <p> 17 = Movies <p/>
+         <p> 19 = Action/Adventure <p/>
+         <p> 22 = Documentary <p/>
+         <p> 23 = Drama <p/>
+         <p> 24 = Family <p/>
+         <p> 26 = Horror <p/>
+         <p> 27 = Sci-Fi/Fantasy <p/>
+         <p> 28 = Thriller <p/>
+        "
       )
     })
     
@@ -207,7 +211,7 @@ server <- function(input, output) {
     )
 
     output$Boxplot <- renderPlot(
-      data %>%
+      data_cleaned %>%
         filter(category_id == input$Categoreis) %>%
         mutate(category_id_c = as.character(category_id)) %>%
         group_by(category_id_c) %>%
