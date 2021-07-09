@@ -211,13 +211,19 @@ server <- function(input, output) {
     )
 
     output$Boxplot <- renderPlot(
-      data_cleaned %>%
+      data %>%
         filter(category_id == input$Categoreis) %>%
         mutate(category_id_c = as.character(category_id)) %>%
         group_by(category_id_c) %>%
         summarize(category_id_c, likes) %>%
-        ggplot(aes(y = category_id_c, x=likes)) +
-        geom_boxplot()
+        ggplot(aes(y = reorder(category_id_c,likes,median), x=likes, fill = category_id_c)) +
+        geom_boxplot()+
+        labs(y = "Category ID",
+             x = "Likes",
+             title = "Distribution by Category")+
+        theme_minimal()+
+        xlim(0,100000)+
+        theme(legend.position = "none")
     )
     
 }
