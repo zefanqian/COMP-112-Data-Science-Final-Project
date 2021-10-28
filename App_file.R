@@ -16,11 +16,7 @@ data_cleaned <- data_cleaned %>%
                                                                                                               ifelse(category_id == "15", "Science & Technology", ifelse(category_id == "17", "Science & Technology", 
                                                                                                                                                                          ifelse(category_id == "17", "Movies", ifelse(category_id == "19", "Action/Adventure", ifelse(category_id == "22", "Documentary",
                                                                                                                                                                                                                                                                       ifelse(category_id == "23", "Drama", ifelse(category_id == "24", "Family", ifelse(category_id == "26", "Horror", 
-                                                                                                                                                                                                                                                                                                                                                        ifelse(category_id == "27", "Sci-Fi/Fantasy", "Thriller")))))))))))))
-
-
-
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ifelse(category_id == "27", "Sci-Fi/Fantasy", "Thriller")))))))))))))
 graphdata <- data_cleaned %>%
   mutate(category_id_c = as.character(category)) %>% 
   group_by(category_id_c) %>% 
@@ -31,8 +27,6 @@ graphdata <- data_cleaned %>%
             totalvideos = n(), likes_per_video = totallikes/totalvideos, 
             dislikes_per_video = totaldislikes/ totalvideos, views_per_video = totalviews/totalvideos,
             comment_count_per_video = totalcomment/totalvideos, like_dislike_ratio_per_video = mean(like_dislike_ratio, na.rm = TRUE))
-
-
 
 ui <- fluidPage(
   
